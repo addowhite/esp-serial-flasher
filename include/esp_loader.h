@@ -129,7 +129,7 @@ typedef struct {
   *     - ESP_LOADER_ERROR_TIMEOUT Timeout
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   */
-esp_loader_error_t esp_loader_connect(esp_loader_connect_args_t *connect_args);
+esp_loader_error_t esp_loader_connect(void *ctx, esp_loader_connect_args_t *connect_args);
 
 /**
   * @brief   Returns attached target chip.
@@ -139,7 +139,7 @@ esp_loader_error_t esp_loader_connect(esp_loader_connect_args_t *connect_args);
   *
   * @return  One of target_chip_t
   */
-target_chip_t esp_loader_get_target(void);
+target_chip_t esp_loader_get_target(void *ctx);
 
 
 #if (defined SERIAL_FLASHER_INTERFACE_UART) || (defined SERIAL_FLASHER_INTERFACE_USB)
@@ -153,7 +153,7 @@ target_chip_t esp_loader_get_target(void);
   *     - ESP_LOADER_ERROR_TIMEOUT Timeout
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   */
-esp_loader_error_t esp_loader_connect_with_stub(esp_loader_connect_args_t *connect_args);
+esp_loader_error_t esp_loader_connect_with_stub(void *ctx, esp_loader_connect_args_t *connect_args, size_t baudrate);
 
 #ifdef SERIAL_FLASHER_INTERFACE_UART
 /**
@@ -175,7 +175,7 @@ esp_loader_error_t esp_loader_connect_with_stub(esp_loader_connect_args_t *conne
   *     - ESP_LOADER_ERROR_TIMEOUT Timeout
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   */
-esp_loader_error_t esp_loader_connect_secure_download_mode(esp_loader_connect_args_t *connect_args,
+esp_loader_error_t esp_loader_connect_secure_download_mode(void *ctx, esp_loader_connect_args_t *connect_args,
         uint32_t flash_size, target_chip_t target_chip);
 #endif /* SERIAL_FLASHER_INTERFACE_UART */
 #endif /* SERIAL_FLASHER_INTERFACE_UART || SERIAL_FLASHER_INTERFACE_USB */
@@ -196,7 +196,7 @@ esp_loader_error_t esp_loader_connect_secure_download_mode(esp_loader_connect_ar
   *     - ESP_LOADER_ERROR_TIMEOUT Timeout
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   */
-esp_loader_error_t esp_loader_flash_start(uint32_t offset, uint32_t image_size, uint32_t block_size);
+esp_loader_error_t esp_loader_flash_start(void *ctx, uint32_t offset, uint32_t image_size, uint32_t block_size);
 
 /**
   * @brief Writes supplied data to target's flash memory.
@@ -214,7 +214,7 @@ esp_loader_error_t esp_loader_flash_start(uint32_t offset, uint32_t image_size, 
   *     - ESP_LOADER_ERROR_TIMEOUT Timeout
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   */
-esp_loader_error_t esp_loader_flash_write(void *payload, uint32_t size);
+esp_loader_error_t esp_loader_flash_write(void *ctx, void *payload, uint32_t size);
 
 /**
   * @brief Ends flash operation.
@@ -226,7 +226,7 @@ esp_loader_error_t esp_loader_flash_write(void *payload, uint32_t size);
   *     - ESP_LOADER_ERROR_TIMEOUT Timeout
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   */
-esp_loader_error_t esp_loader_flash_finish(bool reboot);
+esp_loader_error_t esp_loader_flash_finish(void *ctx, bool reboot);
 
 /**
   * @brief Detects the size of the flash chip used by target
@@ -238,7 +238,7 @@ esp_loader_error_t esp_loader_flash_finish(bool reboot);
   *     - ESP_LOADER_ERROR_UNSUPPORTED_CHIP The target flash chip is not known
   *     - ESP_LOADER_ERROR_UNSUPPORTED_FUNC The target chip is running in secure download mode
   */
-esp_loader_error_t esp_loader_flash_detect_size(uint32_t *flash_size);
+esp_loader_error_t esp_loader_flash_detect_size(void *ctx, uint32_t *flash_size);
 #endif /* SERIAL_FLASHER_INTERFACE_SPI */
 
 #if (defined SERIAL_FLASHER_INTERFACE_UART) || (defined SERIAL_FLASHER_INTERFACE_USB)
@@ -256,7 +256,7 @@ esp_loader_error_t esp_loader_flash_detect_size(uint32_t *flash_size);
   *     - ESP_LOADER_ERROR_UNSUPPORTED_CHIP The target flash chip is not known
   *     - ESP_LOADER_ERROR_UNSUPPORTED_FUNC The target chip is running in secure download mode
   */
-esp_loader_error_t esp_loader_flash_read(uint8_t *buf, uint32_t address, uint32_t length);
+esp_loader_error_t esp_loader_flash_read(void *ctx, uint8_t *buf, uint32_t address, uint32_t length);
 
 /**
   * @brief Erase the whole flash chip
@@ -270,7 +270,7 @@ esp_loader_error_t esp_loader_flash_read(uint8_t *buf, uint32_t address, uint32_
   *     - ESP_LOADER_ERROR_TIMEOUT Timeout
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   */
-esp_loader_error_t esp_loader_flash_erase(void);
+esp_loader_error_t esp_loader_flash_erase(void *ctx);
 
 /**
   * @brief Erase a region of the flash
@@ -288,7 +288,7 @@ esp_loader_error_t esp_loader_flash_erase(void);
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   *     - ESP_LOADER_ERROR_INVALID_PARAM Invalid parameter
   */
-esp_loader_error_t esp_loader_flash_erase_region(uint32_t offset, uint32_t size);
+esp_loader_error_t esp_loader_flash_erase_region(void *ctx, uint32_t offset, uint32_t size);
 
 /**
   * @brief Change baud rate of the stub running on the target
@@ -305,7 +305,7 @@ esp_loader_error_t esp_loader_flash_erase_region(uint32_t offset, uint32_t size)
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   *     - ESP_LOADER_ERROR_UNSUPPORTED_FUNC The stub is not running
   */
-esp_loader_error_t esp_loader_change_transmission_rate_stub(uint32_t old_transmission_rate,
+esp_loader_error_t esp_loader_change_transmission_rate_stub(void *ctx, uint32_t old_transmission_rate,
         uint32_t new_transmission_rate);
 
 /**
@@ -322,7 +322,7 @@ esp_loader_error_t esp_loader_change_transmission_rate_stub(uint32_t old_transmi
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE The target reply is malformed.
   *     - ESP_LOADER_ERROR_UNSUPPORTED_FUNC The target chip does not support this command.
   */
-esp_loader_error_t esp_loader_get_security_info(esp_loader_target_security_info_t *security_info);
+esp_loader_error_t esp_loader_get_security_info(void *ctx, esp_loader_target_security_info_t *security_info);
 #endif /* SERIAL_FLASHER_INTERFACE_UART || SERIAL_FLASHER_INTERFACE_USB */
 
 
@@ -342,7 +342,7 @@ esp_loader_error_t esp_loader_get_security_info(esp_loader_target_security_info_
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   *     - ESP_LOADER_ERROR_UNSUPPORTED_FUNC The target is running in secure download mode
   */
-esp_loader_error_t esp_loader_mem_start(uint32_t offset, uint32_t size, uint32_t block_size);
+esp_loader_error_t esp_loader_mem_start(void *ctx, uint32_t offset, uint32_t size, uint32_t block_size);
 
 
 /**
@@ -361,7 +361,7 @@ esp_loader_error_t esp_loader_mem_start(uint32_t offset, uint32_t size, uint32_t
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   *     - ESP_LOADER_ERROR_UNSUPPORTED_FUNC The target is running in secure download mode
   */
-esp_loader_error_t esp_loader_mem_write(const void *payload, uint32_t size);
+esp_loader_error_t esp_loader_mem_write(void *ctx, const void *payload, uint32_t size);
 
 
 /**
@@ -376,7 +376,7 @@ esp_loader_error_t esp_loader_mem_write(const void *payload, uint32_t size);
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   *     - ESP_LOADER_ERROR_UNSUPPORTED_FUNC The target is running in secure download mode
   */
-esp_loader_error_t esp_loader_mem_finish(uint32_t entrypoint);
+esp_loader_error_t esp_loader_mem_finish(void *ctx, uint32_t entrypoint);
 
 /**
   * @brief Reads the MAC address of the connected chip.
@@ -389,7 +389,7 @@ esp_loader_error_t esp_loader_mem_finish(uint32_t entrypoint);
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   *     - ESP_LOADER_ERROR_UNSUPPORTED_FUNC The target is running in secure download mode
   */
-esp_loader_error_t esp_loader_read_mac(uint8_t *mac);
+esp_loader_error_t esp_loader_read_mac(void *ctx, uint8_t *mac);
 
 /**
   * @brief Writes register.
@@ -403,7 +403,7 @@ esp_loader_error_t esp_loader_read_mac(uint8_t *mac);
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   *     - ESP_LOADER_ERROR_UNSUPPORTED_FUNC The target is running in secure download mode
   */
-esp_loader_error_t esp_loader_write_register(uint32_t address, uint32_t reg_value);
+esp_loader_error_t esp_loader_write_register(void *ctx, uint32_t address, uint32_t reg_value);
 
 /**
   * @brief Reads register.
@@ -417,7 +417,7 @@ esp_loader_error_t esp_loader_write_register(uint32_t address, uint32_t reg_valu
   *     - ESP_LOADER_ERROR_INVALID_RESPONSE Internal error
   *     - ESP_LOADER_ERROR_UNSUPPORTED_FUNC The target is running in secure download mode
   */
-esp_loader_error_t esp_loader_read_register(uint32_t address, uint32_t *reg_value);
+esp_loader_error_t esp_loader_read_register(void *ctx, uint32_t address, uint32_t *reg_value);
 
 #ifndef SERIAL_FLASHER_INTERFACE_SDIO
 /**
@@ -435,7 +435,7 @@ esp_loader_error_t esp_loader_read_register(uint32_t address, uint32_t *reg_valu
   *     - ESP_LOADER_ERROR_UNSUPPORTED_FUNC Either the target is running in secure download
   *       mode or the stub is running on the target.
   */
-esp_loader_error_t esp_loader_change_transmission_rate(uint32_t transmission_rate);
+esp_loader_error_t esp_loader_change_transmission_rate(void *ctx, uint32_t transmission_rate);
 #endif /* SERIAL_FLASHER_INTERFACE_SDIO */
 
 #if MD5_ENABLED
@@ -478,7 +478,7 @@ esp_loader_error_t esp_loader_flash_verify(void);
 /**
   * @brief Toggles reset pin.
   */
-void esp_loader_reset_target(void);
+void esp_loader_reset_target(void *ctx);
 
 
 

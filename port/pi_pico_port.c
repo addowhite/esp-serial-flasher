@@ -26,7 +26,7 @@ static uint s_boot_pin_num;
 static bool s_peripheral_needs_deinit;
 
 #if SERIAL_FLASHER_DEBUG_TRACE
-static void transfer_debug_print(const uint8_t *data, uint16_t size, bool write)
+static void transfer_debug_print(void *ctx, const uint8_t *data, uint16_t size, bool write)
 {
     static bool write_prev = false;
 
@@ -55,7 +55,7 @@ static bool baud_is_within_tolerance(const uint requested_baudrate, const uint g
     return (baudrate_error < 1.0f) ? true : false;
 }
 
-esp_loader_error_t loader_port_write(const uint8_t *data, const uint16_t size, const uint32_t timeout)
+esp_loader_error_t loader_port_write(void *ctx, const uint8_t *data, const uint16_t size, const uint32_t timeout)
 {
     const uint32_t deadline_ms = to_ms_since_boot(get_absolute_time()) + timeout;
 

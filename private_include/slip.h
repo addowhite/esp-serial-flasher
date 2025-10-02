@@ -19,8 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-esp_loader_error_t SLIP_receive_packet(uint8_t *buff, size_t max_size, size_t *recv_size);
+esp_loader_error_t SLIP_receive_packet(void *ctx, uint8_t *buff, size_t max_size, size_t *recv_size);
 
-esp_loader_error_t SLIP_send(const uint8_t *data, size_t size);
+esp_loader_error_t SLIP_send(void *ctx, const uint8_t *data, size_t size);
 
-esp_loader_error_t SLIP_send_delimiter(void);
+esp_loader_error_t SLIP_send_delimiter(void *ctx);

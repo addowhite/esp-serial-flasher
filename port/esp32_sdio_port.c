@@ -113,7 +113,7 @@ void loader_port_esp32_sdio_deinit(void)
 }
 
 
-esp_loader_error_t loader_port_write(const uint32_t function, const uint32_t addr,
+esp_loader_error_t loader_port_write(void *ctx, const uint32_t function, const uint32_t addr,
                                      const uint8_t *data, const uint16_t size,
                                      const uint32_t timeout)
 {

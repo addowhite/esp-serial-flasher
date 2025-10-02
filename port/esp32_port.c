@@ -106,7 +106,7 @@ void loader_port_esp32_deinit(void)
 }
 
 
-esp_loader_error_t loader_port_write(const uint8_t *data, uint16_t size, uint32_t timeout)
+esp_loader_error_t loader_port_write(void *ctx, const uint8_t *data, uint16_t size, uint32_t timeout)
 {
     uart_write_bytes(s_uart_port, (const char *)data, size);
     esp_err_t err = uart_wait_tx_done(s_uart_port, pdMS_TO_TICKS(timeout));

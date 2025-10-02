@@ -35,34 +35,34 @@ static uint8_t compute_checksum(const uint8_t *data, uint32_t size)
     return checksum;
 }
 
-void log_loader_internal_error(error_code_t error)
+void log_loader_internal_error(void *ctx, error_code_t error)
 {
     switch (error) {
-    case INVALID_CRC:               loader_port_debug_print("Error: INVALID_CRC"); break;
-    case INVALID_COMMAND:           loader_port_debug_print("Error: INVALID_COMMAND"); break;
-    case COMMAND_FAILED:            loader_port_debug_print("Error: COMMAND_FAILED"); break;
-    case FLASH_WRITE_ERR:           loader_port_debug_print("Error: FLASH_WRITE_ERR"); break;
-    case FLASH_READ_ERR:            loader_port_debug_print("Error: FLASH_READ_ERR"); break;
-    case READ_LENGTH_ERR:           loader_port_debug_print("Error: READ_LENGTH_ERR"); break;
-    case DEFLATE_ERROR:             loader_port_debug_print("Error: DEFLATE_ERROR"); break;
+    case INVALID_CRC:               loader_port_debug_print(ctx, "Error: INVALID_CRC"); break;
+    case INVALID_COMMAND:           loader_port_debug_print(ctx, "Error: INVALID_COMMAND"); break;
+    case COMMAND_FAILED:            loader_port_debug_print(ctx, "Error: COMMAND_FAILED"); break;
+    case FLASH_WRITE_ERR:           loader_port_debug_print(ctx, "Error: FLASH_WRITE_ERR"); break;
+    case FLASH_READ_ERR:            loader_port_debug_print(ctx, "Error: FLASH_READ_ERR"); break;
+    case READ_LENGTH_ERR:           loader_port_debug_print(ctx, "Error: READ_LENGTH_ERR"); break;
+    case DEFLATE_ERROR:             loader_port_debug_print(ctx, "Error: DEFLATE_ERROR"); break;
 
-    case STUB_BAD_DATA_LEN:         loader_port_debug_print("Error: BAD_DATA_LEN"); break;
-    case STUB_BAD_DATA_CHECKSUM:    loader_port_debug_print("Error: BAD_DATA_CHECKSUM"); break;
-    case STUB_BAD_BLOCKSIZE:        loader_port_debug_print("Error: BAD_BLOCKSIZE"); break;
-    case STUB_INVALID_COMMAND:      loader_port_debug_print("Error: INVALID_COMMAND"); break;
-    case STUB_FAILED_SPI_OP:        loader_port_debug_print("Error: FAILED_SPI_OP"); break;
-    case STUB_FAILED_SPI_UNLOCK:    loader_port_debug_print("Error: FAILED_SPI_UNLOCK"); break;
-    case STUB_NOT_IN_FLASH_MODE:    loader_port_debug_print("Error: NOT_IN_FLASH_MODE"); break;
-    case STUB_INFLATE_ERROR:        loader_port_debug_print("Error: INFLATE_ERROR"); break;
-    case STUB_NOT_ENOUGH_DATA:      loader_port_debug_print("Error: NOT_ENOUGH_DATA"); break;
-    case STUB_TOO_MUCH_DATA:        loader_port_debug_print("Error: TOO_MUCH_DATA"); break;
-    case STUB_CMD_NOT_IMPLEMENTED:  loader_port_debug_print("Error: CMD_NOT_IMPLEMENTED"); break;
+    case STUB_BAD_DATA_LEN:         loader_port_debug_print(ctx, "Error: BAD_DATA_LEN"); break;
+    case STUB_BAD_DATA_CHECKSUM:    loader_port_debug_print(ctx, "Error: BAD_DATA_CHECKSUM"); break;
+    case STUB_BAD_BLOCKSIZE:        loader_port_debug_print(ctx, "Error: BAD_BLOCKSIZE"); break;
+    case STUB_INVALID_COMMAND:      loader_port_debug_print(ctx, "Error: INVALID_COMMAND"); break;
+    case STUB_FAILED_SPI_OP:        loader_port_debug_print(ctx, "Error: FAILED_SPI_OP"); break;
+    case STUB_FAILED_SPI_UNLOCK:    loader_port_debug_print(ctx, "Error: FAILED_SPI_UNLOCK"); break;
+    case STUB_NOT_IN_FLASH_MODE:    loader_port_debug_print(ctx, "Error: NOT_IN_FLASH_MODE"); break;
+    case STUB_INFLATE_ERROR:        loader_port_debug_print(ctx, "Error: INFLATE_ERROR"); break;
+    case STUB_NOT_ENOUGH_DATA:      loader_port_debug_print(ctx, "Error: NOT_ENOUGH_DATA"); break;
+    case STUB_TOO_MUCH_DATA:        loader_port_debug_print(ctx, "Error: TOO_MUCH_DATA"); break;
+    case STUB_CMD_NOT_IMPLEMENTED:  loader_port_debug_print(ctx, "Error: CMD_NOT_IMPLEMENTED"); break;
 
-    default:                        loader_port_debug_print("Error: UNKNOWN ERROR"); break;
+    default:                        loader_port_debug_print(ctx, "Error: UNKNOWN ERROR"); break;
     }
 }
 
-esp_loader_error_t loader_flash_begin_cmd(uint32_t offset,
+esp_loader_error_t loader_flash_begin_cmd(void *ctx, uint32_t offset,
         uint32_t erase_size,
         uint32_t block_size,
         uint32_t blocks_to_write,
@@ -89,11 +89,11 @@ esp_loader_error_t loader_flash_begin_cmd(uint32_t offset,
         .cmd_size = sizeof(flash_begin_cmd) - (encryption ? 0 : sizeof(uint32_t)),
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_flash_data_cmd(const uint8_t *data, uint32_t size)
+esp_loader_error_t loader_flash_data_cmd(void *ctx, const uint8_t *data, uint32_t size)
 {
     data_command_t data_cmd = {
         .common = {
@@ -113,11 +113,11 @@ esp_loader_error_t loader_flash_data_cmd(const uint8_t *data, uint32_t size)
         .data_size = size,
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_flash_end_cmd(bool stay_in_loader)
+esp_loader_error_t loader_flash_end_cmd(void *ctx, bool stay_in_loader)
 {
     flash_end_command_t end_cmd = {
         .common = {
@@ -134,11 +134,11 @@ esp_loader_error_t loader_flash_end_cmd(bool stay_in_loader)
         .cmd_size = sizeof(end_cmd)
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_flash_read_rom_cmd(const uint32_t address, uint8_t *data)
+esp_loader_error_t loader_flash_read_rom_cmd(void *ctx, const uint32_t address, uint8_t *data)
 {
     const flash_read_rom_cmd flash_read_cmd = {
         .common = {
@@ -158,11 +158,11 @@ esp_loader_error_t loader_flash_read_rom_cmd(const uint32_t address, uint8_t *da
         .resp_data_size = READ_FLASH_ROM_DATA_SIZE,
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_flash_read_stub_cmd(const uint32_t address, const uint32_t size,
+esp_loader_error_t loader_flash_read_stub_cmd(void *ctx, const uint32_t address, const uint32_t size,
         const uint32_t size_per_packet)
 {
     const flash_read_stub_cmd flash_read_cmd = {
@@ -183,11 +183,11 @@ esp_loader_error_t loader_flash_read_stub_cmd(const uint32_t address, const uint
         .cmd_size = sizeof(flash_read_cmd),
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_flash_erase_cmd(void)
+esp_loader_error_t loader_flash_erase_cmd(void *ctx)
 {
     const flash_erase_chip_cmd erase_cmd = {
         .common = {
@@ -203,10 +203,10 @@ esp_loader_error_t loader_flash_erase_cmd(void)
         .cmd_size = sizeof(erase_cmd),
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
-esp_loader_error_t loader_flash_erase_region_cmd(uint32_t offset, uint32_t size)
+esp_loader_error_t loader_flash_erase_region_cmd(void *ctx, uint32_t offset, uint32_t size)
 {
     const flash_erase_region_cmd erase_cmd = {
         .common = {
@@ -224,10 +224,10 @@ esp_loader_error_t loader_flash_erase_region_cmd(uint32_t offset, uint32_t size)
         .cmd_size = sizeof(erase_cmd),
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
-esp_loader_error_t loader_sync_cmd(void)
+esp_loader_error_t loader_sync_cmd(void *ctx)
 {
     sync_command_t sync_cmd = {
         .common = {
@@ -250,11 +250,11 @@ esp_loader_error_t loader_sync_cmd(void)
         .cmd_size = sizeof(sync_cmd)
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_spi_attach_cmd(uint32_t config)
+esp_loader_error_t loader_spi_attach_cmd(void *ctx, uint32_t config)
 {
     spi_attach_command_t attach_cmd = {
         .common = {
@@ -272,11 +272,11 @@ esp_loader_error_t loader_spi_attach_cmd(uint32_t config)
         .cmd_size = esp_stub_get_running() ? sizeof(attach_cmd) - sizeof(attach_cmd.zero) : sizeof(attach_cmd),
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_md5_cmd(uint32_t address, uint32_t size, uint8_t *md5_out)
+esp_loader_error_t loader_md5_cmd(void *ctx, uint32_t address, uint32_t size, uint8_t *md5_out)
 {
     spi_flash_md5_command_t md5_cmd = {
         .common = {
@@ -298,11 +298,11 @@ esp_loader_error_t loader_md5_cmd(uint32_t address, uint32_t size, uint8_t *md5_
         .resp_data_size = esp_stub_get_running() ? MD5_SIZE_STUB : MD5_SIZE_ROM,
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_spi_parameters(uint32_t total_size)
+esp_loader_error_t loader_spi_parameters(void *ctx, uint32_t total_size)
 {
     write_spi_command_t spi_cmd = {
         .common = {
@@ -324,12 +324,12 @@ esp_loader_error_t loader_spi_parameters(uint32_t total_size)
         .cmd_size = sizeof(spi_cmd),
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
 #ifndef SERIAL_FLASHER_INTERFACE_SDIO
-esp_loader_error_t loader_mem_begin_cmd(uint32_t offset, uint32_t size, uint32_t blocks_to_write, uint32_t block_size)
+esp_loader_error_t loader_mem_begin_cmd(void *ctx, uint32_t offset, uint32_t size, uint32_t blocks_to_write, uint32_t block_size)
 {
 
     mem_begin_command_t mem_begin_cmd = {
@@ -352,11 +352,11 @@ esp_loader_error_t loader_mem_begin_cmd(uint32_t offset, uint32_t size, uint32_t
         .cmd_size = sizeof(mem_begin_cmd),
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_mem_data_cmd(const uint8_t *data, uint32_t size)
+esp_loader_error_t loader_mem_data_cmd(void *ctx, const uint8_t *data, uint32_t size)
 {
     data_command_t data_cmd = {
         .common = {
@@ -376,11 +376,11 @@ esp_loader_error_t loader_mem_data_cmd(const uint8_t *data, uint32_t size)
         .data_size = size,
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_mem_end_cmd(uint32_t entrypoint)
+esp_loader_error_t loader_mem_end_cmd(void *ctx, uint32_t entrypoint)
 {
     mem_end_command_t end_cmd = {
         .common = {
@@ -397,12 +397,12 @@ esp_loader_error_t loader_mem_end_cmd(uint32_t entrypoint)
         .cmd_size = sizeof(end_cmd),
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 #endif /* SERIAL_FLASHER_INTERFACE_SDIO */
 
 
-esp_loader_error_t loader_write_reg_cmd(uint32_t address, uint32_t value,
+esp_loader_error_t loader_write_reg_cmd(void *ctx, uint32_t address, uint32_t value,
                                         uint32_t mask, uint32_t delay_us)
 {
     write_reg_command_t write_cmd = {
@@ -423,11 +423,11 @@ esp_loader_error_t loader_write_reg_cmd(uint32_t address, uint32_t value,
         .cmd_size = sizeof(write_cmd),
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_read_reg_cmd(uint32_t address, uint32_t *reg)
+esp_loader_error_t loader_read_reg_cmd(void *ctx, uint32_t address, uint32_t *reg)
 {
     read_reg_command_t read_cmd = {
         .common = {
@@ -445,11 +445,11 @@ esp_loader_error_t loader_read_reg_cmd(uint32_t address, uint32_t *reg)
         .reg_value = reg,
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_change_baudrate_cmd(uint32_t new_baudrate, uint32_t old_baudrate)
+esp_loader_error_t loader_change_baudrate_cmd(void *ctx, uint32_t new_baudrate, uint32_t old_baudrate)
 {
     change_baudrate_command_t baudrate_cmd = {
         .common = {
@@ -467,11 +467,11 @@ esp_loader_error_t loader_change_baudrate_cmd(uint32_t new_baudrate, uint32_t ol
         .cmd_size = sizeof(baudrate_cmd),
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-esp_loader_error_t loader_get_security_info_cmd(get_security_info_response_data_t *response,
+esp_loader_error_t loader_get_security_info_cmd(void *ctx, get_security_info_response_data_t *response,
         uint32_t *response_recv_size)
 {
     const get_security_info_command_t get_security_info_cmd = {
@@ -491,11 +491,11 @@ esp_loader_error_t loader_get_security_info_cmd(get_security_info_response_data_
         .resp_data_recv_size = response_recv_size,
     };
 
-    return send_cmd(&cmd_config);
+    return send_cmd(ctx, &cmd_config);
 }
 
 
-__attribute__ ((weak)) void loader_port_debug_print(const char *str)
+__attribute__ ((weak)) void loader_port_debug_print(void *ctx, const char *str)
 {
     (void) str;
 }

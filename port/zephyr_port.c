@@ -80,7 +80,7 @@ esp_loader_error_t loader_port_read(uint8_t *data, const uint16_t size, const ui
     return ESP_LOADER_SUCCESS;
 }
 
-esp_loader_error_t loader_port_write(const uint8_t *data, const uint16_t size, const uint32_t timeout)
+esp_loader_error_t loader_port_write(void *ctx, const uint8_t *data, const uint16_t size, const uint32_t timeout)
 {
     if (!device_is_ready(uart_dev) || data == NULL || size == 0) {
         return ESP_LOADER_ERROR_FAIL;

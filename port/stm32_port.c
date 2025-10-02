@@ -42,7 +42,7 @@ static void transfer_debug_print(const uint8_t *data, uint16_t size, bool write)
 
 static uint32_t s_time_end;
 
-esp_loader_error_t loader_port_write(const uint8_t *data, uint16_t size, uint32_t timeout)
+esp_loader_error_t loader_port_write(void *ctx, const uint8_t *data, uint16_t size, uint32_t timeout)
 {
     HAL_StatusTypeDef err = HAL_UART_Transmit(uart, (uint8_t *)data, size, timeout);
 

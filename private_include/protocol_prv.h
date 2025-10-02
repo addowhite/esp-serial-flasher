@@ -35,6 +35,6 @@ typedef struct {
     uint32_t *reg_value; // Out parameter for the READ_REG command, will return zero otherwise
 } send_cmd_config;
 
-void log_loader_internal_error(error_code_t error);
+void log_loader_internal_error(void *ctx, error_code_t error);
 
-esp_loader_error_t send_cmd(const send_cmd_config *config);
+esp_loader_error_t send_cmd(void *ctx, const send_cmd_config *config);

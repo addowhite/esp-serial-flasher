@@ -20,39 +20,39 @@ static const uint8_t DELIMITER = 0xC0;
 static const uint8_t C0_REPLACEMENT[2] = {0xDB, 0xDC};
 static const uint8_t DB_REPLACEMENT[2] = {0xDB, 0xDD};
 
-static inline esp_loader_error_t peripheral_read(uint8_t *buff, const size_t size)
+static inline esp_loader_error_t peripheral_read(void *ctx, uint8_t *buff, const size_t size)
 {
-    return loader_port_read(buff, size, loader_port_remaining_time());
+    return loader_port_read(ctx, buff, size, loader_port_remaining_time(ctx));
 }
 
-static inline esp_loader_error_t peripheral_write(const uint8_t *buff, const size_t size)
+static inline esp_loader_error_t peripheral_write(void *ctx, const uint8_t *buff, const size_t size)
 {
-    return loader_port_write(buff, size, loader_port_remaining_time());
+    return loader_port_write(ctx, buff, size, loader_port_remaining_time(ctx));
 }
 
 
-esp_loader_error_t SLIP_receive_packet(uint8_t *buff, const size_t max_size, size_t *recv_size)
+esp_loader_error_t SLIP_receive_packet(void *ctx, uint8_t *buff, const size_t max_size, size_t *recv_size)
 {
     uint8_t ch;
 
     // Wait for delimiter
     do {
-        RETURN_ON_ERROR( peripheral_read(&ch, 1) );
+        RETURN_ON_ERROR( peripheral_read(ctx, &ch, 1) );
     } while (ch != DELIMITER);
 
     // Workaround: bootloader sends two dummy(0xC0) bytes after response when baud rate is changed.
     do {
-        RETURN_ON_ERROR( peripheral_read(&ch, 1) );
+        RETURN_ON_ERROR( peripheral_read(ctx, &ch, 1) );
     } while (ch == DELIMITER);
 
     buff[0] = ch;
 
     // Receive either until either delimiter or maximum receive size
     for (size_t i = 1; i < max_size; i++) {
-        RETURN_ON_ERROR( peripheral_read(&ch, 1) );
+        RETURN_ON_ERROR( peripheral_read(ctx, &ch, 1) );
 
         if (ch == 0xDB) {
-            RETURN_ON_ERROR( peripheral_read(&ch, 1) );
+            RETURN_ON_ERROR( peripheral_read(ctx, &ch, 1) );
             if (ch == 0xDC) {
                 buff[i] = 0xC0;
             } else if (ch == 0xDD) {
@@ -71,7 +71,7 @@ esp_loader_error_t SLIP_receive_packet(uint8_t *buff, const size_t max_size, siz
     // Wait for delimiter if we already reached max receive size
     // This enables us to ignore unsupported or unnecessary packet data instead of failing
     do {
-        RETURN_ON_ERROR( peripheral_read(&ch, 1) );
+        RETURN_ON_ERROR( peripheral_read(ctx, &ch, 1) );
     } while (ch != DELIMITER);
 
     *recv_size = max_size;
@@ -80,7 +80,7 @@ esp_loader_error_t SLIP_receive_packet(uint8_t *buff, const size_t max_size, siz
 }
 
 
-esp_loader_error_t SLIP_send(const uint8_t *data, const size_t size)
+esp_loader_error_t SLIP_send(void *ctx, const uint8_t *data, const size_t size)
 {
     uint32_t to_write = 0;  // Bytes ready to write as they are
     uint32_t written = 0;   // Bytes already written
@@ -93,14 +93,14 @@ esp_loader_error_t SLIP_send(const uint8_t *data, const size_t size)
 
         // We have a byte that needs encoding, write the queue first
         if (to_write > 0) {
-            RETURN_ON_ERROR( peripheral_write(&data[written], to_write) );
+            RETURN_ON_ERROR( peripheral_write(ctx, &data[written], to_write) );
         }
 
         // Write the encoded byte
         if (data[i] == 0xC0) {
-            RETURN_ON_ERROR( peripheral_write(C0_REPLACEMENT, 2) );
+            RETURN_ON_ERROR( peripheral_write(ctx, C0_REPLACEMENT, 2) );
         } else {
-            RETURN_ON_ERROR( peripheral_write(DB_REPLACEMENT, 2) );
+            RETURN_ON_ERROR( peripheral_write(ctx, DB_REPLACEMENT, 2) );
         }
 
         // Update to start again after the encoded byte
@@ -110,14 +110,14 @@ esp_loader_error_t SLIP_send(const uint8_t *data, const size_t size)
 
     // Write the rest of the bytes that didn't need encoding
     if (to_write > 0) {
-        RETURN_ON_ERROR( peripheral_write(&data[written], to_write) );
+        RETURN_ON_ERROR( peripheral_write(ctx, &data[written], to_write) );
     }
 
     return ESP_LOADER_SUCCESS;
 }
 
 
-esp_loader_error_t SLIP_send_delimiter(void)
+esp_loader_error_t SLIP_send_delimiter(void *ctx)
 {
-    return peripheral_write(&DELIMITER, 1);
+    return peripheral_write(ctx, &DELIMITER, 1);
 }

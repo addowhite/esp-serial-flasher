@@ -142,7 +142,7 @@ void loader_port_spi_set_cs(const uint32_t level)
 }
 
 
-esp_loader_error_t loader_port_write(const uint8_t *data, const uint16_t size, const uint32_t timeout)
+esp_loader_error_t loader_port_write(void *ctx, const uint8_t *data, const uint16_t size, const uint32_t timeout)
 {
     (void) timeout;
 

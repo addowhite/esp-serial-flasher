@@ -227,7 +227,7 @@ void loader_port_deinit(void)
     gpioTerminate();
 }
 
-esp_loader_error_t loader_port_write(const uint8_t *data, uint16_t size, uint32_t timeout)
+esp_loader_error_t loader_port_write(void *ctx, const uint8_t *data, uint16_t size, uint32_t timeout)
 {
     int written = write(serial, data, size);
 

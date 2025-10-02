@@ -26,7 +26,7 @@ extern "C" {
 /**
   * @brief Changes the transmission rate of the used peripheral.
   */
-esp_loader_error_t loader_port_change_transmission_rate(uint32_t transmission_rate);
+esp_loader_error_t loader_port_change_transmission_rate(void *ctx, uint32_t transmission_rate);
 #endif
 
 /**
@@ -41,9 +41,9 @@ esp_loader_error_t loader_port_change_transmission_rate(uint32_t transmission_ra
   *     - ESP_LOADER_ERROR_TIMEOUT Timeout elapsed
   */
 #ifndef SERIAL_FLASHER_INTERFACE_SDIO
-esp_loader_error_t loader_port_write(const uint8_t *data, uint16_t size, uint32_t timeout);
+esp_loader_error_t loader_port_write(void *ctx, const uint8_t *data, uint16_t size, uint32_t timeout);
 #else
-esp_loader_error_t loader_port_write(uint32_t function, uint32_t addr, const uint8_t *data,
+esp_loader_error_t loader_port_write(void *ctx, uint32_t function, uint32_t addr, const uint8_t *data,
                                      uint16_t size, uint32_t timeout);
 #endif
 
@@ -59,9 +59,9 @@ esp_loader_error_t loader_port_write(uint32_t function, uint32_t addr, const uin
   *     - ESP_LOADER_ERROR_TIMEOUT Timeout elapsed
   */
 #ifndef SERIAL_FLASHER_INTERFACE_SDIO
-esp_loader_error_t loader_port_read(uint8_t *data, uint16_t size, uint32_t timeout);
+esp_loader_error_t loader_port_read(void *ctx, uint8_t *data, uint16_t size, uint32_t timeout);
 #else
-esp_loader_error_t loader_port_read(uint32_t function, uint32_t addr, uint8_t *data,
+esp_loader_error_t loader_port_read(void *ctx, uint32_t function, uint32_t addr, uint8_t *data,
                                     uint16_t size, uint32_t timeout);
 #endif
 
@@ -71,7 +71,7 @@ esp_loader_error_t loader_port_read(uint32_t function, uint32_t addr, uint8_t *d
   * @param ms[in]   Number of milliseconds.
   *
   */
-void loader_port_delay_ms(uint32_t ms);
+void loader_port_delay_ms(void *ctx, uint32_t ms);
 
 /**
   * @brief Starts timeout timer.
@@ -79,7 +79,7 @@ void loader_port_delay_ms(uint32_t ms);
   * @param ms[in]   Number of milliseconds.
   *
   */
-void loader_port_start_timer(uint32_t ms);
+void loader_port_start_timer(void *ctx, uint32_t ms);
 
 /**
   * @brief Returns remaining time since timer was started by calling esp_loader_start_timer.
@@ -88,21 +88,21 @@ void loader_port_start_timer(uint32_t ms);
   * @return   Number of milliseconds.
   *
   */
-uint32_t loader_port_remaining_time(void);
+uint32_t loader_port_remaining_time(void *ctx);
 
 /**
   * @brief Asserts bootstrap pins to enter boot mode and toggles reset pin.
   *
   * @note  Reset pin should stay asserted for at least 20 milliseconds.
   */
-void loader_port_enter_bootloader(void);
+void loader_port_enter_bootloader(void *ctx);
 
 /**
   * @brief Toggles reset pin.
   *
   * @note  Reset pin should stay asserted for at least 20 milliseconds.
   */
-void loader_port_reset_target(void);
+void loader_port_reset_target(void *ctx);
 
 /**
   * @brief Function can be defined by user to print debug message.
@@ -110,7 +110,7 @@ void loader_port_reset_target(void);
   * @note  Empty weak function is used, otherwise.
   *
   */
-void loader_port_debug_print(const char *str);
+void loader_port_debug_print(void *ctx, const char *str);
 
 #ifdef SERIAL_FLASHER_INTERFACE_SPI
 /**

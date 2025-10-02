@@ -83,45 +83,45 @@ static void handle_usb_event(const cdc_acm_host_dev_event_data_t *event, void *u
     }
 }
 
-static void usb_serial_jtag_reset_target(void)
+static void usb_serial_jtag_reset_target(void *ctx)
 {
     xStreamBufferReset(s_rx_stream_buffer);
     cdc_acm_host_set_control_line_state(s_acm_device, false, true);
-    loader_port_delay_ms(SERIAL_FLASHER_RESET_HOLD_TIME_MS);
+    loader_port_delay_ms(ctx, SERIAL_FLASHER_RESET_HOLD_TIME_MS);
     cdc_acm_host_set_control_line_state(s_acm_device, false, false);
 }
 
-static void usb_serial_jtag_enter_booloader(void)
+static void usb_serial_jtag_enter_booloader(void *ctx)
 {
     cdc_acm_host_set_control_line_state(s_acm_device, true, false);
 
-    loader_port_delay_ms(SERIAL_FLASHER_BOOT_HOLD_TIME_MS);
+    loader_port_delay_ms(ctx, SERIAL_FLASHER_BOOT_HOLD_TIME_MS);
 
     cdc_acm_host_set_control_line_state(s_acm_device, true, true);
-    usb_serial_jtag_reset_target();
+    usb_serial_jtag_reset_target(ctx);
 }
 
-static void usb_serial_converter_reset_target(void)
+static void usb_serial_converter_reset_target(void *ctx)
 {
     xStreamBufferReset(s_rx_stream_buffer);
     cdc_acm_host_set_control_line_state(s_acm_device, true, true);
-    loader_port_delay_ms(SERIAL_FLASHER_RESET_HOLD_TIME_MS);
+    loader_port_delay_ms(ctx, SERIAL_FLASHER_RESET_HOLD_TIME_MS);
     cdc_acm_host_set_control_line_state(s_acm_device, true, false);
 }
 
-static void usb_serial_converter_enter_bootloader(void)
+static void usb_serial_converter_enter_bootloader(void *ctx)
 {
     cdc_acm_host_set_control_line_state(s_acm_device, true, false);
 
-    usb_serial_converter_reset_target();
+    usb_serial_converter_reset_target(ctx);
 
-    loader_port_delay_ms(SERIAL_FLASHER_BOOT_HOLD_TIME_MS);
+    loader_port_delay_ms(ctx, SERIAL_FLASHER_BOOT_HOLD_TIME_MS);
     cdc_acm_host_set_control_line_state(s_acm_device, false, false);
 }
 
 static uint32_t s_time_end;
 
-esp_loader_error_t loader_port_write(const uint8_t *data, const uint16_t size,
+esp_loader_error_t loader_port_write(void *ctx, const uint8_t *data, const uint16_t size,
                                      const uint32_t timeout)
 {
     assert(data != NULL);
