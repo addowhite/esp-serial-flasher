@@ -23,15 +23,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "esp_loader.h"
+#include "esp_serial_flasher_port.h"
 
 static bool s_stub_running = false;
 
-bool esp_stub_get_running(void)
+bool esp_stub_get_running(void *ctx)
 {
     return s_stub_running;
 }
 
-void esp_stub_set_running(bool stub_status)
+void esp_stub_set_running(void *ctx, bool stub_status)
 {
     s_stub_running = stub_status;
 }

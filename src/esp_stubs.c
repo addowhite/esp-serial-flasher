@@ -16,17 +16,18 @@
 // auto-generated stubs from esp-flasher-stub v0.3.0
 
 #include "esp_stubs.h"
+#include "esp_serial_flasher_port.h"
 
-static bool stub_running = false;
-
-bool esp_stub_get_running(void)
+bool esp_stub_get_running(void *ctx)
 {
-    return stub_running;
+    loader_config_t *config = ctx;
+    return config->stub_running;
 }
 
-void esp_stub_set_running(bool stub_status)
+void esp_stub_set_running(void *ctx, bool stub_status)
 {
-    stub_running = stub_status;
+    loader_config_t *config = ctx;
+    config->stub_running = stub_status;
 }
 
 #if (defined SERIAL_FLASHER_INTERFACE_UART) || (defined SERIAL_FLASHER_INTERFACE_USB)

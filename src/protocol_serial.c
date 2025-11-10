@@ -17,12 +17,11 @@
 #include "protocol_prv.h"
 #include "esp_loader_io.h"
 #include "esp_stubs.h"
+#include "esp_serial_flasher_port.h"
 #include <stddef.h>
 #include <string.h>
 
 #define CMD_SIZE(cmd) ( sizeof(cmd) - sizeof(command_common_t) )
-
-static uint32_t s_sequence_number = 0;
 
 static uint8_t compute_checksum(const uint8_t *data, uint32_t size)
 {
@@ -68,6 +67,8 @@ esp_loader_error_t loader_flash_begin_cmd(void *ctx, uint32_t offset,
         uint32_t blocks_to_write,
         bool encryption)
 {
+    loader_config_t *config = ctx;
+
     flash_begin_command_t flash_begin_cmd = {
         .common = {
             .direction = WRITE_DIRECTION,
@@ -82,7 +83,7 @@ esp_loader_error_t loader_flash_begin_cmd(void *ctx, uint32_t offset,
         .encrypted = 0
     };
 
-    s_sequence_number = 0;
+    config->s_sequence_number = 0;
 
     const send_cmd_config cmd_config = {
         .cmd = &flash_begin_cmd,
@@ -95,6 +96,8 @@ esp_loader_error_t loader_flash_begin_cmd(void *ctx, uint32_t offset,
 
 esp_loader_error_t loader_flash_data_cmd(void *ctx, const uint8_t *data, uint32_t size)
 {
+    loader_config_t *config = ctx;
+
     data_command_t data_cmd = {
         .common = {
             .direction = WRITE_DIRECTION,
@@ -103,7 +106,7 @@ esp_loader_error_t loader_flash_data_cmd(void *ctx, const uint8_t *data, uint32_
             .checksum = compute_checksum(data, size)
         },
         .data_size = size,
-        .sequence_number = s_sequence_number++,
+        .sequence_number = config->s_sequence_number++,
     };
 
     const send_cmd_config cmd_config = {
@@ -269,7 +272,7 @@ esp_loader_error_t loader_spi_attach_cmd(void *ctx, uint32_t config)
 
     const send_cmd_config cmd_config = {
         .cmd = &attach_cmd,
-        .cmd_size = esp_stub_get_running() ? sizeof(attach_cmd) - sizeof(attach_cmd.zero) : sizeof(attach_cmd),
+        .cmd_size = esp_stub_get_running(ctx) ? sizeof(attach_cmd) - sizeof(attach_cmd.zero) : sizeof(attach_cmd),
     };
 
     return send_cmd(ctx, &cmd_config);
@@ -295,7 +298,7 @@ esp_loader_error_t loader_md5_cmd(void *ctx, uint32_t address, uint32_t size, ui
         .cmd = &md5_cmd,
         .cmd_size = sizeof(md5_cmd),
         .resp_data = md5_out,
-        .resp_data_size = esp_stub_get_running() ? MD5_SIZE_STUB : MD5_SIZE_ROM,
+        .resp_data_size = esp_stub_get_running(ctx) ? MD5_SIZE_STUB : MD5_SIZE_ROM,
     };
 
     return send_cmd(ctx, &cmd_config);
@@ -331,6 +334,7 @@ esp_loader_error_t loader_spi_parameters(void *ctx, uint32_t total_size)
 #ifndef SERIAL_FLASHER_INTERFACE_SDIO
 esp_loader_error_t loader_mem_begin_cmd(void *ctx, uint32_t offset, uint32_t size, uint32_t blocks_to_write, uint32_t block_size)
 {
+    loader_config_t *config = ctx;
 
     mem_begin_command_t mem_begin_cmd = {
         .common = {
@@ -345,7 +349,7 @@ esp_loader_error_t loader_mem_begin_cmd(void *ctx, uint32_t offset, uint32_t siz
         .offset = offset
     };
 
-    s_sequence_number = 0;
+    config->s_sequence_number = 0;
 
     const send_cmd_config cmd_config = {
         .cmd = &mem_begin_cmd,
@@ -358,6 +362,8 @@ esp_loader_error_t loader_mem_begin_cmd(void *ctx, uint32_t offset, uint32_t siz
 
 esp_loader_error_t loader_mem_data_cmd(void *ctx, const uint8_t *data, uint32_t size)
 {
+    loader_config_t *config = ctx;
+
     data_command_t data_cmd = {
         .common = {
             .direction = WRITE_DIRECTION,
@@ -366,7 +372,7 @@ esp_loader_error_t loader_mem_data_cmd(void *ctx, const uint8_t *data, uint32_t 
             .checksum = compute_checksum(data, size)
         },
         .data_size = size,
-        .sequence_number = s_sequence_number++,
+        .sequence_number = config->s_sequence_number++,
     };
 
     const send_cmd_config cmd_config = {

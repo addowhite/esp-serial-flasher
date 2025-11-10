@@ -25,8 +25,8 @@
 extern "C" {
 #endif
 
-bool esp_stub_get_running(void);
-void esp_stub_set_running(bool stub_status);
+bool esp_stub_get_running(void *ctx);
+void esp_stub_set_running(void *ctx, bool stub_status);
 
 #if (defined SERIAL_FLASHER_INTERFACE_UART) || (defined SERIAL_FLASHER_INTERFACE_USB)
 

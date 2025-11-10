@@ -112,7 +112,7 @@ esp_loader_error_t loader_run_stub(void *ctx, target_chip_t target, size_t baudr
         return ESP_LOADER_ERROR_INVALID_RESPONSE;
     }
 
-    esp_stub_set_running(true);
+    esp_stub_set_running(ctx, true);
 
     return ESP_LOADER_SUCCESS;
 }
