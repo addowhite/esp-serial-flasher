@@ -9,7 +9,7 @@
   "build": {
     "srcDir": "src",
     "srcFilter": [
-      "+<*.c>",
+      "+<*.c>"
     ]
   }
 }
