@@ -7,9 +7,16 @@
   "frameworks": "*",
   "platforms": "*",
   "build": {
+    "flags": [
+      "-Iinclude",
+      "-Iprivate_include",
+      "-DSERIAL_FLASHER_WRITE_BLOCK_RETRIES=3"
+    ],
     "srcDir": "src",
     "srcFilter": [
-      "+<*.c>"
+      "+<*.c>",
+      "-<protocol_sdio.c>",
+      "-<protocol_spi.c>"
     ]
   }
 }
